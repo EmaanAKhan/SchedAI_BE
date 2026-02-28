@@ -1,8 +1,0 @@
-flask
-flask-sqlalchemy
-flask-jwt-extended
-flask-cors
-flask-bcrypt
-psycopg2-binary
-anthropic
-python-dotenv
