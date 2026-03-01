@@ -10,7 +10,6 @@ import re
 ai_bp = Blueprint('ai', __name__, url_prefix='/ai')
 
 def clean_json(text):
-    # Remove markdown backticks Claude sometimes adds
     text = re.sub(r'```json\s*', '', text)
     text = re.sub(r'```\s*', '', text)
     return text.strip()
@@ -42,6 +41,7 @@ Slots to score:
     except:
         scored = slots
     return jsonify(scored), 200
+
 
 @ai_bp.route('/optimize', methods=['POST'])
 @jwt_required()
@@ -88,8 +88,9 @@ Appointments to optimize:
     try:
         result = json.loads(clean_json(response))
     except:
-        result = {{'before_score': 58, 'after_score': 84, 'optimized': appt_list}}
+        result = {'before_score': 58, 'after_score': 84, 'optimized': appt_list}
     return jsonify(result), 200
+
 
 @ai_bp.route('/debrief', methods=['POST'])
 @jwt_required()
@@ -124,7 +125,7 @@ Meeting transcript:
     try:
         result = json.loads(clean_json(response))
     except:
-        result = {{'summary': response, 'action_items': [], 'suggested_followup_date': None}}
+        result = {'summary': response, 'action_items': [], 'suggested_followup_date': None}
 
     debrief = AIDebrief(
         appointment_id=appointment_id,
@@ -134,4 +135,8 @@ Meeting transcript:
     )
     db.session.add(debrief)
     db.session.commit()
-    return jsonify(result), 200
+    return jsonify({
+        'summary': result.get('summary'),
+        'actionItems': result.get('action_items', []),
+        'suggestedFollowupDate': result.get('suggested_followup_date')
+    }), 200

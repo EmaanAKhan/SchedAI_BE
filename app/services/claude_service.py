@@ -1,12 +1,9 @@
-import anthropic
+import google.generativeai as genai
 import os
 
-client = anthropic.Anthropic(api_key=os.getenv('ANTHROPIC_API_KEY'))
+genai.configure(api_key=os.getenv('gemini-1.5-flash-8b'))
+model = genai.GenerativeModel('gemini-2.0-flash')
 
 def call_claude(prompt: str) -> str:
-    message = client.messages.create(
-        model="claude-opus-4-6",
-        max_tokens=1024,
-        messages=[{"role": "user", "content": prompt}]
-    )
-    return message.content[0].text
+    response = model.generate_content(prompt)
+    return response.text
